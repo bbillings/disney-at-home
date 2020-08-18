@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Disney at Home</string>
+    <string name="image_text_description">Disney At Home</string>
+    <string name="edit_message">Enter a message</string>
+    <string name="button_send">Send</string>
+    <string name="scan_badge">Scan Your Band</string>
+    <string name="fun">to Start the Fun!</string>
+    <string name="explore">Explore ></string>
+    <string name="hi">Hi, </string>
+    <string name="band_description">Magic Band Image</string>
+</resources>
