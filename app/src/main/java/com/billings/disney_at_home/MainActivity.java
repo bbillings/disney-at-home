@@ -1,7 +1,8 @@
 package com.billings.disney_at_home;
 
-import android.content.ActivityNotFoundException;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
@@ -76,25 +77,21 @@ public class MainActivity extends AppCompatActivity {
         exploreButton.setOnClickListener(new YouTubeOnclickListener(userPlaylist.getPlaylistId()));
     }
 
-    private class YouTubeOnclickListener implements View.OnClickListener {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("onResume", "1");
 
-        private String videoId;
-
-        YouTubeOnclickListener(String videoId) {
-            this.videoId = videoId;
-        }
-
-        @Override
-        public void onClick(View v) {
-            Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
-            Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("http://www.youtube.com/watch?v=" + videoId));
-            try {
-                startActivity(appIntent);
-            } catch (ActivityNotFoundException ex) {
-                startActivity(webIntent);
-            }
-        }
+        // creating pending intent:
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        // creating intent receiver for NFC events:
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(NfcAdapter.ACTION_TAG_DISCOVERED);
+        filter.addAction(NfcAdapter.ACTION_NDEF_DISCOVERED);
+        filter.addAction(NfcAdapter.ACTION_TECH_DISCOVERED);
+        // enabling foreground dispatch for getting intent from NFC event:
+        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        nfcAdapter.enableForegroundDispatch(this, pendingIntent, new IntentFilter[]{filter}, this.techList);
     }
 
     @Override
@@ -136,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
         return sb.toString();
     }
 
-
     private String getHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (int i = bytes.length - 1; i >= 0; --i) {
@@ -171,5 +167,20 @@ public class MainActivity extends AppCompatActivity {
             factor *= 256l;
         }
         return result;
+    }
+
+    private class YouTubeOnclickListener implements View.OnClickListener {
+
+        private String listId;
+
+        YouTubeOnclickListener(String listId) {
+            this.listId = listId;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + listId));
+            startActivity(webIntent);
+        }
     }
 }
